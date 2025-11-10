@@ -215,6 +215,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutineToApply.dynamic(direction);
     }
+    
+    public void resetGyro(double angle) {
+      getPigeon2().setYaw(-angle);
+    }
 
     @Override
     public void periodic() {
