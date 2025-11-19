@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ResetGyro;
+import frc.robot.commands.autos.TwoAlgaeRight;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -21,8 +22,10 @@ import java.time.temporal.TemporalAdjuster;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -41,10 +44,11 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   private CommandSwerveDrivetrain m_swerveDrive = TunerConstants.createDrivetrain();
-  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSp,m,waeedAt12Volts desired top speed
-
+  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / 10.42; // kSp,m,waeedAt12Volts desired top speed
   
   private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   
@@ -58,6 +62,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     intializeSubsystems();
+    initAutoChooser();
     
     SmartDashboard.putData(new ResetGyro(m_swerveDrive));
   }
@@ -88,7 +93,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return m_autoChooser.getSelected();
   }
   private void intializeSubsystems(){
     
@@ -113,5 +118,12 @@ public class RobotContainer {
                       rotationRate); // Drive counterclockwise with negative X (left)
               return drive;
             }));
+  }
+
+  private void initAutoChooser() {
+    SmartDashboard.putData("Auto Mode", m_autoChooser);
+    m_autoChooser.setDefaultOption("Do Nothing", new WaitCommand(0));
+
+    m_autoChooser.addOption("TwoAlgaeRight", new TwoAlgaeRight(m_swerveDrive));
   }
 }
